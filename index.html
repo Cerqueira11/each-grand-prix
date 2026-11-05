@@ -11,9 +11,12 @@
   <header>
     <div>
       <h1><span class="flag">🏁</span> EACH Grand Prix</h1>
-      <div class="sub">Painel do organizador · funciona offline · projete na tela</div>
+      <div class="sub offline-only">Painel do organizador · funciona offline · projete na tela</div>
+      <div class="sub online-only">Telão do modo online · os líderes jogam pelo celular</div>
     </div>
     <div class="row">
+      <a class="btn ghost sm offline-only" href="?online">📱 Jogar com celulares</a>
+      <a class="btn ghost sm online-only" href="./">Modo offline</a>
       <button class="btn ghost sm" id="btnReset">↺ Reiniciar jogo</button>
     </div>
   </header>
@@ -27,9 +30,24 @@
 
   <!-- ============ SETUP ============ -->
   <section id="view-setup">
+    <div class="card online-only" id="onlineRoom">
+      <div class="roomtop">
+        <div>
+          <h2>Entre pelo celular</h2>
+          <p class="muted" style="margin:6px 0 12px">Aponte a câmera para o código ou abra o endereço abaixo e digite o código da sala.</p>
+          <div class="roomcode" id="roomCode">····</div>
+          <div class="roomurl" id="roomUrl"></div>
+          <div class="note" id="roomStatus">Conectando...</div>
+        </div>
+        <div class="roomqr" id="roomQr"></div>
+      </div>
+      <div class="slots" id="roomSlots"></div>
+    </div>
+
     <div class="card">
       <h2>Equipes do grid</h2>
-      <p class="muted" style="margin:6px 0 14px">Adicione as equipes conforme os grupos entram (até 9). Cada equipe começa com o mesmo orçamento.</p>
+      <p class="muted offline-only" style="margin:6px 0 14px">Adicione as equipes conforme os grupos entram (até 9). Cada equipe começa com o mesmo orçamento.</p>
+      <p class="muted online-only" style="margin:6px 0 14px">As equipes aparecem acima conforme os líderes entram pelo celular. Ajuste as regras antes de abrir a montagem.</p>
       <div class="row" style="margin-bottom:14px">
         <div style="min-width:160px">
           <label>Orçamento inicial (moedas por equipe)</label>
@@ -45,14 +63,14 @@
           <span class="note">0 = automático (metade das equipes, arredondando p/ cima)</span>
         </div>
       </div>
-      <div id="teamList"></div>
-      <div class="row" style="margin-top:12px">
+      <div id="teamList" class="offline-only"></div>
+      <div class="row offline-only" style="margin-top:12px">
         <button class="btn green" id="btnAddTeam">➕ Adicionar próxima equipe</button>
         <span class="muted" id="teamCount"></span>
       </div>
     </div>
 
-    <div class="card">
+    <div class="card offline-only">
       <h2>🎲 Ordem de escolha (sorteio)</h2>
       <p class="muted" style="margin:6px 0 10px">As peças Premium têm estoque limitado. Para a disputa ser justa, a ordem em que as equipes escolhem é <strong>sorteada</strong>: a 1ª da fila monta o carro primeiro e tem prioridade nas peças Premium escassas, depois a 2ª, e assim por diante.</p>
       <div class="row">
@@ -69,7 +87,14 @@
 
   <!-- ============ BUY ============ -->
   <section id="view-buy" class="hide">
-    <div class="card">
+    <div class="card online-only" id="onlineBuy">
+      <h2>🔧 Montagem pelo celular</h2>
+      <p class="muted" style="margin:6px 0 12px">Cada líder monta o carro e dá os lances pelas peças Premium no celular. O telão só mostra quem já enviou. Os lances continuam secretos até o leilão.</p>
+      <div class="buystatus" id="buyStatus"></div>
+      <div class="note" id="buyCount" style="margin-top:10px"></div>
+    </div>
+
+    <div class="card offline-only">
       <div class="row" style="justify-content:space-between;align-items:flex-start">
         <div>
           <h2>🔧 Montagem do carro</h2>
@@ -79,7 +104,7 @@
       <div class="draftline" id="buyDraftLine"></div>
     </div>
 
-    <div class="card">
+    <div class="card offline-only">
       <div class="teamtabs" id="teamTabs"></div>
       <div class="row" style="justify-content:space-between;margin-bottom:10px">
         <div>
@@ -101,8 +126,9 @@
     </div>
 
     <div class="row" style="justify-content:space-between">
-      <button class="btn ghost" id="btnBackSetup">← Voltar</button>
-      <button class="btn" id="btnToRace">Largar corrida →</button>
+      <button class="btn ghost offline-only" id="btnBackSetup">← Voltar</button>
+      <span class="online-only"></span>
+      <button class="btn" id="btnToRace"><span class="offline-only">Largar corrida →</span><span class="online-only">Fazer o leilão e largar →</span></button>
     </div>
   </section>
 
@@ -122,7 +148,7 @@
       <div id="circuitHost"></div>
       <div class="leaderboard" id="leaderboard"></div>
     </div>
-    <div class="row" style="justify-content:flex-start;margin-top:16px">
+    <div class="row offline-only" style="justify-content:flex-start;margin-top:16px">
       <button class="btn ghost" id="btnBackBuy">← Voltar</button>
     </div>
   </section>
@@ -166,5 +192,11 @@
 <script src="js/race.js"></script>
 <script src="js/results.js"></script>
 <script src="js/main.js"></script>
+<script src="js/auction.js"></script>
+<script src="js/vendor/qrcode.js"></script>
+<script>
+  // o modo online só carrega o Firebase quando a página abre com "?online"
+  if(ONLINE){ const m=document.createElement("script"); m.type="module"; m.src="js/online-host.js"; document.body.appendChild(m); }
+</script>
 </body>
 </html>

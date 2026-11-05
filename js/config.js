@@ -6,7 +6,7 @@
    ===================================================================== */
 const PARTS = [
   { id:"motor", name:"Motor",        icon:"🏎️" },
-  { id:"pneus", name:"Pneus",        icon:"🛞" },
+  { id:"pneus", name:"Pneus",        icon:"⚫" },
   { id:"aero",  name:"Aerodinâmica", icon:"💨" },
   { id:"freios",name:"Freios",       icon:"🛑" },
   { id:"susp",  name:"Suspensão",    icon:"🔩" },

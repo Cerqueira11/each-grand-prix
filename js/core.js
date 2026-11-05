@@ -1,6 +1,10 @@
 // Estado salvo, helpers de tela (toast, confirmação), regras das peças e navegação entre etapas.
 
 // ===================== ESTADO =====================
+// "?online" na URL liga o modo telão com celulares. O jogo salvo fica separado do modo offline.
+const ONLINE = new URLSearchParams(location.search).has("online");
+const STORAGE_KEY = ONLINE ? "agp_state_online" : "agp_state";
+if(ONLINE) document.body.classList.add("online");
 let state = loadState() || freshState();
 function freshState(){
   return {
@@ -11,8 +15,8 @@ function freshState(){
     race:null,
   };
 }
-function saveState(){ try{ localStorage.setItem("agp_state", JSON.stringify(state)); }catch(e){} }
-function loadState(){ try{ return JSON.parse(localStorage.getItem("agp_state")); }catch(e){ return null; } }
+function saveState(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){} }
+function loadState(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)); }catch(e){ return null; } }
 
 // ===================== HELPERS =====================
 const $ = s=>document.querySelector(s);
@@ -101,4 +105,5 @@ function setPhase(ph){
   if(ph==="buy") renderBuy();
   if(ph==="race") renderRace();
   if(ph==="results") renderResults();
+  if(window.onlinePhase) window.onlinePhase(ph); // modo online ajusta as telas depois de desenhar
 }

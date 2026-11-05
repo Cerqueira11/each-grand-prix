@@ -17,6 +17,7 @@ function computeResults(){
 }
 function renderResults(){
   const res=computeResults();
+  if(window.onlineResults) window.onlineResults(res);
   const podium=$("#podium"); podium.innerHTML="";
   const medals=["🥇","🥈","🥉"], order=[1,0,2];
   order.forEach(idx=>{

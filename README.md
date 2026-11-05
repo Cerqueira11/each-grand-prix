@@ -22,6 +22,20 @@ O progresso fica salvo no navegador. Se a página fechar sem querer, a partida c
 4. Comece a corrida. No fim de cada volta aparece a carta do evento e, depois dela, a classificação por 5 segundos.
 5. Depois da quinta volta vem o pódio.
 
+## Modo online
+
+No modo online, cada líder monta o carro pelo próprio celular e o telão mostra a corrida. Ele precisa de internet no computador do telão e nos celulares. Se a rede falhar, o modo offline continua funcionando.
+
+1. No computador do telão, abra o site e clique em "Jogar com celulares".
+2. O telão mostra um código de 4 letras e um QR code. Cada líder aponta a câmera do celular para o QR code, ou abre `jogador.html` e digita o código, e escolhe a equipe.
+3. Com as equipes dentro, o organizador abre a montagem. Cada líder escolhe as peças no celular e envia o carro.
+4. As peças Premium são disputadas num leilão de lance fechado. Para cada peça Premium pedida, a equipe dá um lance em moedas. Se mais equipes pedirem uma peça do que o estoque, levam os maiores lances e só elas pagam o lance. Quem perde fica com a peça econômica. Se ninguém disputar, ninguém paga.
+5. O organizador faz o leilão, o telão mostra quem levou cada peça e a corrida começa. Durante a corrida, o celular mostra a posição da equipe e o efeito da carta de cada volta no carro dela. No fim, mostra a colocação e os pontos.
+
+Se um celular travar, o líder pode abrir o link de novo no mesmo aparelho e volta para a mesma equipe. Pelo telão, o organizador pode liberar uma equipe para outro celular entrar ou reabrir um carro já enviado.
+
+O modo online guarda os dados num banco do Firebase (Realtime Database), com login anônimo. As regras de acesso ficam em `database.rules.json`: cada celular só mexe na própria equipe, os lances só ficam visíveis para o telão e para a própria equipe, e só o telão que criou a sala controla a partida.
+
 ## Arquivos
 
 | Arquivo | Conteúdo |
@@ -35,7 +49,14 @@ O progresso fica salvo no navegador. Se a página fechar sem querer, a partida c
 | `js/race.js` | Corrida, cartas, animação da pista |
 | `js/results.js` | Pódio |
 | `js/main.js` | Reinício e inicialização |
+| `js/auction.js` | Regras do leilão e conferência do carro enviado pelo celular |
+| `js/online-host.js` | Modo online do telão: sala, QR code, leilão e envio das voltas |
+| `js/firebase-config.js` | Configuração pública do Firebase |
+| `jogador.html`, `js/jogador.js`, `css/jogador.css` | Tela do celular |
+| `js/vendor/qrcode.js` | Gerador de QR code (Kazuhiko Arase, licença MIT) |
+| `database.rules.json` | Regras de acesso do banco |
 | `sim.py` | Simulação usada para equilibrar os números |
+| `sim_leilao.py` | Simulação que compara o leilão com a fila sorteada |
 
 ## Equilíbrio
 
@@ -50,3 +71,5 @@ python sim.py v10s
 ```
 
 O nome `v10s` indica a versão das regras. As versões anteriores ficaram no arquivo para comparação.
+
+O leilão do modo online foi testado com `python sim_leilao.py`. Nele, a melhor estratégia vence perto de 25% das corridas, e lances de 0, 2 e 4 moedas ficam competitivos. Na fila sorteada, a mesma estratégia ganhava cerca de 6 pontos a mais quando era a primeira da fila do que quando era a última. No leilão essa diferença some, porque quem leva a peça depende do lance e não da ordem.

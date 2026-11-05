@@ -6,7 +6,8 @@ function initRace(){
   const deck=shuffle(DECK.slice()).slice(0, state.laps); // sorteia quais cartas saem e em que ordem
   const run={};
   state.teams.forEach(t=>{
-    run[t.id]={ money: state.budget-teamSpent(t), perm:Object.fromEntries(PARTS.map(p=>[p.id,0])), total:0, lastLap:0 };
+    // bidPaid = moedas pagas em lances no leilão do modo online (0 no offline)
+    run[t.id]={ money: state.budget-teamSpent(t)-(t.bidPaid||0), perm:Object.fromEntries(PARTS.map(p=>[p.id,0])), total:0, lastLap:0 };
   });
   state.race={ currentLap:0, deck, run, finished:false };
   saveState();
@@ -225,6 +226,7 @@ function runOneLap(){
   animateLap(fracBefore, fracAfter, ()=>{
     if(!state.race) return; // jogo reiniciado durante a volta
     renderLeaderboard();
+    if(window.onlineLapDone) window.onlineLapDone({ lap:lap+1, card, draw:cardDrawText(card, ctx), effects });
     showCardPopup(card, ctx, effects, lap+1);
   });
 }
@@ -255,7 +257,7 @@ function animateLap(fracBefore, fracAfter, done){
 // descreve, em linguagem natural, o que a carta fez com cada equipe (p/ o pop-up)
 function describeImpact(team, card, ctx, moneyDelta){
   const ch=team.choices, who=`${team.emoji} ${team.name}`;
-  const g=(txt,kind)=>({who, txt, kind});
+  const g=(txt,kind)=>({who, txt, kind, teamId:team.id});
   // unidades explícitas: "m" = metros nesta volta (decide a posição), "moedas" = saldo (decide o bônus)
   const M=n=>`<strong>${n>0?"+":"−"}${Math.abs(n)} m</strong>`;
   const C=n=>`<strong>−${Math.abs(n)} moedas</strong>`;
@@ -300,12 +302,17 @@ function describeImpact(team, card, ctx, moneyDelta){
   return null;
 }
 
+// texto do sorteio de cartas que escolhem uma peça ou fornecedor ("" quando a carta não sorteia nada)
+function cardDrawText(card, ctx){
+  if(card.key==="atraso") return `Peça sorteada: <strong>${partName(ctx.X)}</strong>`;
+  if(card.key==="faliu")  return `Fornecedor sorteado: <strong>${ctx.Y==="P"?"Premium":"Econômico"} de ${partName(ctx.X)}</strong>`;
+  if(card.key==="quebra") return ctx.Q ? `Peça sorteada: <strong>${partName(ctx.Q)}</strong>` : `<strong>Ninguém quebrou nesta volta!</strong>`;
+  return "";
+}
+
 // ---- pop-up da carta ----
 function showCardPopup(card, ctx, effects, lapNumber){
-  let draw="";
-  if(card.key==="atraso") draw=`Peça sorteada: <strong>${partName(ctx.X)}</strong>`;
-  else if(card.key==="faliu") draw=`Fornecedor sorteado: <strong>${ctx.Y==="P"?"Premium":"Econômico"} de ${partName(ctx.X)}</strong>`;
-  else if(card.key==="quebra") draw = ctx.Q ? `Peça sorteada: <strong>${partName(ctx.Q)}</strong>` : `<strong>Ninguém quebrou nesta volta!</strong>`;
+  const draw=cardDrawText(card, ctx);
 
   const effRows = effects.length
     ? effects.map(e=>`<div class="eff ${e.kind}"><span class="who">${e.who}:</span><span>${e.txt}</span></div>`).join("")

@@ -4,3 +4,5 @@ CONTEXTO_acquisition-grand-prix.md
 acquisition-grand-prix.html
 __pycache__/
 .vscode/
+firebase-debug.log
+.firebase/

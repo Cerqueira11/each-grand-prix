@@ -37,9 +37,11 @@ def base_notes(s):
     return notes
 
 
-def race(strats, rng):
+def race(strats, rng, extra=None, scarcity=None):
+    """extra[i] = moedas gastas fora do preço das peças (ex.: lance de leilão).
+    scarcity=False pula a fila sorteada, para quando as peças já vêm distribuídas."""
     n = len(strats)
-    if SCARCITY:
+    if SCARCITY if scarcity is None else scarcity:
         stock = {p: -(-n // 2) for p in PARTS}
         order0 = list(range(n)); rng.shuffle(order0)
         strats = list(strats)
@@ -53,9 +55,10 @@ def race(strats, rng):
                         s[k] = "E"
             strats[i] = tuple(s)
     cars = []
-    for s in strats:
+    for i, s in enumerate(strats):
         cars.append({"s": dict(zip(PARTS, s)), "notes": base_notes(s),
-                     "money": BUDGET - cost(s), "total": 0, "perm": {p: 0 for p in PARTS}})
+                     "money": BUDGET - cost(s) - (extra[i] if extra else 0),
+                     "total": 0, "perm": {p: 0 for p in PARTS}})
     deck = DECK[:] * DECK_MULT
     rng.shuffle(deck)
     if CARDS_ON_HALF:

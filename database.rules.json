@@ -1,0 +1,49 @@
+{
+  "rules": {
+    "rooms": {
+      "$code": {
+        ".read": "auth != null && data.child('host').val() === auth.uid",
+        ".write": "auth != null && (data.exists() ? data.child('host').val() === auth.uid : newData.child('host').val() === auth.uid)",
+        ".validate": "$code.matches(/^[A-Z2-9]{4}$/)",
+
+        "host":     { ".validate": "newData.isString()" },
+        "phase":    { ".read": "auth != null", ".validate": "newData.isString() && newData.val().matches(/^(setup|buy|race|results)$/)" },
+        "settings": { ".read": "auth != null" },
+        "createdAt":{ ".validate": "newData.isNumber()" },
+        "auction":  { ".read": "auth != null" },
+        "live":     { ".read": "auth != null" },
+        "results":  { ".read": "auth != null" },
+
+        "teams": {
+          ".read": "auth != null",
+          "$i": {
+            ".validate": "$i.matches(/^t[0-8]$/)",
+            "claimedBy": {
+              ".write": "auth != null && (root.child('rooms/' + $code + '/phase').val() === 'setup' || root.child('rooms/' + $code + '/phase').val() === 'buy') && ((!data.exists() && newData.val() === auth.uid) || (data.val() === auth.uid && !newData.exists()))",
+              ".validate": "newData.isString()"
+            },
+            "$other": { ".validate": false }
+          }
+        },
+
+        "cars": {
+          "$i": {
+            ".read": "auth != null && root.child('rooms/' + $code + '/teams/' + $i + '/claimedBy').val() === auth.uid",
+            ".write": "auth != null && root.child('rooms/' + $code + '/phase').val() === 'buy' && root.child('rooms/' + $code + '/teams/' + $i + '/claimedBy').val() === auth.uid && data.child('locked').val() !== true",
+            ".validate": "$i.matches(/^t[0-8]$/) && newData.hasChildren(['choices', 'locked'])",
+            "choices": {
+              "$p": { ".validate": "$p.matches(/^(motor|pneus|aero|freios|susp)$/) && newData.isString() && newData.val().matches(/^[PEM]$/)" }
+            },
+            "bids": {
+              "$p": { ".validate": "$p.matches(/^(motor|pneus|aero|freios|susp)$/) && newData.isNumber() && newData.val() >= 0 && newData.val() <= 99" }
+            },
+            "locked": { ".validate": "newData.isBoolean()" },
+            "$other": { ".validate": false }
+          }
+        },
+
+        "$other": { ".validate": false }
+      }
+    }
+  }
+}

@@ -158,3 +158,23 @@ tr:hover td{background:var(--panel2)}
 .cardpop .eff.good{color:var(--green)}
 .cardpop .eff.bad{color:var(--red)}
 .cardpop .eff.neutral{color:var(--muted)}
+
+/* ---- Modo online (telão) ---- */
+body.online .offline-only{display:none !important}
+body:not(.online) .online-only{display:none !important}
+a.btn{text-decoration:none;display:inline-block}
+.roomtop{display:flex;gap:24px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.roomcode{font-size:64px;font-weight:800;letter-spacing:12px;color:var(--accent);line-height:1}
+.roomurl{margin:10px 0 6px;font-size:16px}
+.roomurl a{color:var(--blue)}
+.roomqr{width:220px;height:220px;background:#fff;border-radius:14px;padding:8px}
+.roomqr svg{width:100%;height:100%;display:block}
+.slots,.buystatus{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;margin-top:16px}
+.slot,.bstat{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;background:var(--panel2);border:1px solid var(--line)}
+.slot .swatch,.bstat .swatch{width:16px;height:16px}
+.slot .sname,.bstat .sname{font-weight:700}
+.slot .sstate,.bstat .sstate{margin-left:auto;font-size:13px}
+.slot.taken,.bstat.done{border-color:var(--green)}
+.auc{padding:8px 0;border-bottom:1px solid var(--line)}
+.auc:last-child{border-bottom:none}
+.auctitle{font-weight:800;margin-bottom:4px}
