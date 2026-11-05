@@ -134,7 +134,7 @@ function makeCount() { return PARTS.filter((p) => draft.choices[p.id] === "M").l
 
 function renderBuild() {
   $("#buildRules").textContent = `Você tem ${budget()} moedas. No máximo ${PREM_CAP} peças Premium. A oficina dá conta de ${MAKE_CAP} peças sem perder nota.`;
-  $("#auctionHelp").textContent = `Cada peça Premium tem ${stock()} unidades no mercado. Se mais equipes pedirem do que o estoque, levam os maiores lances, e só quem leva paga o lance. Empate é sorteado. Quem perde fica com o econômico e não paga nada a mais. Se ninguém disputar, ninguém paga lance.`;
+  $("#auctionHelp").textContent = `Cada peça Premium tem ${stock()} unidades no mercado. Se mais equipes pedirem do que o estoque, levam os maiores lances, e só quem leva paga o lance. Se o empate cair no limite do estoque, o telão sorteia entre as equipes empatadas. Quem perde fica com o econômico e não paga nada a mais. Se ninguém disputar, ninguém paga lance.`;
   const made = makeCount();
   $("#partList").innerHTML = PARTS.map((p) => {
     const sel = draft.choices[p.id];
@@ -219,7 +219,9 @@ function auctionLines() {
   return `<h3>Leilão</h3>` + mine.map((r) => {
     const n = partName(r.part);
     if (!r.disputed) return `<div class="pline good">${n} Premium: sem disputa, levou sem pagar lance.</div>`;
+    if (r.won && r.draw) return `<div class="pline good">${n} Premium: empatou com outras equipes em ${coins(r.bid)}, ganhou no sorteio e pagou ${coins(r.bid)}.</div>`;
     if (r.won) return `<div class="pline good">${n} Premium: ganhou a disputa e pagou ${coins(r.bid)}.</div>`;
+    if (r.draw) return `<div class="pline bad">${n} Premium: empatou com outras equipes em ${coins(r.bid)}, perdeu no sorteio e ficou com o econômico. O lance não foi cobrado.</div>`;
     return `<div class="pline bad">${n} Premium: perdeu a disputa e ficou com o econômico. O lance não foi cobrado.</div>`;
   }).join("") + (paid ? `<div class="pline neutral">Total pago em lances: ${coins(paid)}.</div>` : "");
 }

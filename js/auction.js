@@ -40,10 +40,15 @@ function resolveAuction(entries, stock, rand=Math.random){
     }
     req.sort((a,b)=> b.bid-a.bid || a.tie-b.tie);
     const winners=req.slice(0,stock), losers=req.slice(stock);
-    winners.forEach(r=>{ paid[r.id]+=r.bid; perTeam[r.id].push({part:p.id, won:true, bid:r.bid, disputed:true}); });
-    losers.forEach(r=>{ final[r.id][p.id]="E"; perTeam[r.id].push({part:p.id, won:false, bid:r.bid, disputed:true}); });
+    // houve sorteio quando o último lance que levou é igual ao primeiro que ficou de fora
+    const cut=winners[winners.length-1].bid;
+    const drew=losers[0].bid===cut;
+    const inDraw=r=> drew && r.bid===cut;
+    winners.forEach(r=>{ paid[r.id]+=r.bid; perTeam[r.id].push({part:p.id, won:true, bid:r.bid, disputed:true, draw:inDraw(r)}); });
+    losers.forEach(r=>{ final[r.id][p.id]="E"; perTeam[r.id].push({part:p.id, won:false, bid:r.bid, disputed:true, draw:inDraw(r)}); });
     report.push({part:p.id, requests:req.length, stock,
-      winners:winners.map(r=>({id:r.id, bid:r.bid})), losers:losers.map(r=>({id:r.id, bid:r.bid}))});
+      winners:winners.map(r=>({id:r.id, bid:r.bid, draw:inDraw(r)})), losers:losers.map(r=>({id:r.id, bid:r.bid, draw:inDraw(r)})),
+      draw: drew ? {bid:cut, ids:req.filter(inDraw).map(r=>r.id), seats:winners.filter(inDraw).length} : null});
   }
   return {final, paid, perTeam, report};
 }

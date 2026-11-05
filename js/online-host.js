@@ -168,8 +168,9 @@ function showAuctionPopup(res) {
     ? res.report.map((r) => `
         <div class="auc">
           <div class="auctitle">${PARTS.find((p) => p.id === r.part).icon} ${partName(r.part)} Premium: ${r.requests} pedidos, ${r.stock} no estoque</div>
-          <div class="eff good"><span class="who">Levaram:</span><span>${r.winners.map((w) => `${name(w.id)} (${coins(w.bid)})`).join(", ")}</span></div>
-          <div class="eff bad"><span class="who">Ficaram com o econômico:</span><span>${r.losers.map((w) => `${name(w.id)} (lance de ${coins(w.bid)})`).join(", ")}</span></div>
+          <div class="eff good"><span class="who">Levaram:</span><span>${r.winners.map((w) => `${name(w.id)} (${coins(w.bid)}${w.draw ? ", no sorteio" : ""})`).join(", ")}</span></div>
+          <div class="eff bad"><span class="who">Ficaram com o econômico:</span><span>${r.losers.map((w) => `${name(w.id)} (lance de ${coins(w.bid)}${w.draw ? ", perdeu no sorteio" : ""})`).join(", ")}</span></div>
+          ${r.draw ? `<div class="eff neutral"><span class="who">🎲 Empate:</span><span>${r.draw.ids.map(name).join(", ")} deram ${coins(r.draw.bid)} cada e disputaram ${r.draw.seats} ${r.draw.seats === 1 ? "unidade" : "unidades"}. O sorteio decidiu.</span></div>` : ""}
         </div>`).join("")
     : `<div class="eff neutral">Nenhuma peça Premium foi disputada. Todo mundo levou o que pediu, sem pagar lance.</div>`;
   const ov = document.createElement("div");

@@ -29,7 +29,7 @@ No modo online, cada líder monta o carro pelo próprio celular e o telão mostr
 1. No computador do telão, abra o site e clique em "Jogar com celulares".
 2. O telão mostra um código de 4 letras e um QR code. Cada líder aponta a câmera do celular para o QR code, ou abre `jogador.html` e digita o código, e escolhe a equipe.
 3. Com as equipes dentro, o organizador abre a montagem. Cada líder escolhe as peças no celular e envia o carro.
-4. As peças Premium são disputadas num leilão de lance fechado. Para cada peça Premium pedida, a equipe dá um lance em moedas. Se mais equipes pedirem uma peça do que o estoque, levam os maiores lances e só elas pagam o lance. Quem perde fica com a peça econômica. Se ninguém disputar, ninguém paga.
+4. As peças Premium são disputadas num leilão de lance fechado. Para cada peça Premium pedida, a equipe dá um lance em moedas. Se mais equipes pedirem uma peça do que o estoque, levam os maiores lances e só elas pagam o lance. Quem perde fica com a peça econômica. Se ninguém disputar, ninguém paga. Quando o empate cai no limite do estoque, o telão sorteia entre as equipes empatadas e avisa no resultado do leilão.
 5. O organizador faz o leilão, o telão mostra quem levou cada peça e a corrida começa. Durante a corrida, o celular mostra a posição da equipe e o efeito da carta de cada volta no carro dela. No fim, mostra a colocação e os pontos.
 
 Se um celular travar, o líder pode abrir o link de novo no mesmo aparelho e volta para a mesma equipe. Pelo telão, o organizador pode liberar uma equipe para outro celular entrar ou reabrir um carro já enviado.
