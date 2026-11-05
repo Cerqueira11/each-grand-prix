@@ -65,3 +65,4 @@ body.phone{padding:0 0 calc(150px + env(safe-area-inset-bottom));min-height:100v
 .cardhead h3{margin:0;font-size:19px}
 .breakline{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);font-size:15px}
 .breakline:last-child{border-bottom:none;font-weight:800}
+.popt .pstock{color:var(--accent);font-weight:700}

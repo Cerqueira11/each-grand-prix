@@ -133,8 +133,12 @@ function premCount() { return PARTS.filter((p) => draft.choices[p.id] === "P").l
 function makeCount() { return PARTS.filter((p) => draft.choices[p.id] === "M").length; }
 
 function renderBuild() {
-  $("#buildRules").textContent = `Você tem ${budget()} moedas. No máximo ${PREM_CAP} peças Premium. A oficina dá conta de ${MAKE_CAP} peças sem perder nota.`;
-  $("#auctionHelp").textContent = `Cada peça Premium tem ${stock()} unidades no mercado. Se mais equipes pedirem do que o estoque, levam os maiores lances, e só quem leva paga o lance. Se o empate cair no limite do estoque, o telão sorteia entre as equipes empatadas. Quem perde fica com o econômico e não paga nada a mais. Se ninguém disputar, ninguém paga lance.`;
+  $("#buildRules").textContent = `Você tem ${budget()} moedas. No máximo ${PREM_CAP} peças Premium, cada uma com ${stock()} unidades no mercado. A oficina dá conta de ${MAKE_CAP} peças sem perder nota.`;
+  $("#auctionHelp").innerHTML = `Para cada peça Premium você dá um lance secreto em moedas, que pode ser 0. Cada peça tem ${stock()} unidades.
+    <br>1. Se até ${stock()} equipes pedirem a peça, todas levam e ninguém paga o lance. As moedas ficam no seu saldo.
+    <br>2. Se mais equipes pedirem, levam os ${stock()} maiores lances, e cada uma paga o próprio lance.
+    <br>3. Empate no limite do estoque vai para sorteio.
+    <br>4. Quem não leva fica com a peça econômica e não paga o lance.`;
   const made = makeCount();
   $("#partList").innerHTML = PARTS.map((p) => {
     const sel = draft.choices[p.id];
@@ -143,9 +147,10 @@ function renderBuild() {
       const price = o === "M" ? "grátis" : coins(c.cost);
       const off = (o === "P" && sel !== "P" && premCount() >= PREM_CAP);
       const improv = (o === "M" && sel !== "M" && made >= MAKE_CAP) ? " · −2 (improviso)" : "";
+      const stockTxt = o === "P" ? `<br><span class="pstock">${stock()} no estoque</span>` : "";
       return `<button class="popt${sel === o ? " sel" : ""}${off ? " off" : ""}" data-part="${p.id}" data-opt="${o}">
         <span><span class="pl">${OPT[o].label}</span><br><span class="pv">${OPT[o].tip}</span></span>
-        <span class="pv">nota ${c.note}<br>${price}${improv}</span></button>`;
+        <span class="pv">nota ${c.note}<br>${price}${improv}${stockTxt}</span></button>`;
     }).join("");
     const bid = draft.bids[p.id] || 0;
     const bidRow = sel === "P" ? `<div class="pbid">
