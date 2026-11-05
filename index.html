@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>🏁 EACH Grand Prix</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1><span class="flag">🏁</span> EACH Grand Prix</h1>
+      <div class="sub">Painel do organizador · funciona offline · projete na tela</div>
+    </div>
+    <div class="row">
+      <button class="btn ghost sm" id="btnReset">↺ Reiniciar jogo</button>
+    </div>
+  </header>
+
+  <div class="steps">
+    <div class="step active" data-step="setup">1 · Equipes</div>
+    <div class="step" data-step="buy">2 · Montagem do carro</div>
+    <div class="step" data-step="race">3 · Corrida</div>
+    <div class="step" data-step="results">4 · Pódio</div>
+  </div>
+
+  <!-- ============ SETUP ============ -->
+  <section id="view-setup">
+    <div class="card">
+      <h2>Equipes do grid</h2>
+      <p class="muted" style="margin:6px 0 14px">Adicione as equipes conforme os grupos entram (até 9). Cada equipe começa com o mesmo orçamento.</p>
+      <div class="row" style="margin-bottom:14px">
+        <div style="min-width:160px">
+          <label>Orçamento inicial (moedas por equipe)</label>
+          <input type="number" id="budgetInput" value="55" min="10" step="5">
+        </div>
+        <div style="min-width:130px">
+          <label>Voltas da corrida</label>
+          <input type="number" id="lapsInput" value="5" min="2" max="10">
+        </div>
+        <div style="min-width:230px">
+          <label>Estoque de peças Premium (por peça)</label>
+          <input type="number" id="stockInput" value="0" min="0">
+          <span class="note">0 = automático (metade das equipes, arredondando p/ cima)</span>
+        </div>
+      </div>
+      <div id="teamList"></div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn green" id="btnAddTeam">➕ Adicionar próxima equipe</button>
+        <span class="muted" id="teamCount"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🎲 Ordem de escolha (sorteio)</h2>
+      <p class="muted" style="margin:6px 0 10px">As peças Premium têm estoque limitado. Para a disputa ser justa, a ordem em que as equipes escolhem é <strong>sorteada</strong>: a 1ª da fila monta o carro primeiro e tem prioridade nas peças Premium escassas, depois a 2ª, e assim por diante.</p>
+      <div class="row">
+        <button class="btn blue" id="btnDraw">🎲 Sortear ordem de escolha</button>
+        <span class="muted" id="draftHint">Adicione as equipes e sorteie quando o grid estiver fechado.</span>
+      </div>
+      <div class="draftline" id="draftLine"></div>
+    </div>
+
+    <div class="row" style="justify-content:flex-end">
+      <button class="btn" id="btnToBuy">Ir para montagem do carro →</button>
+    </div>
+  </section>
+
+  <!-- ============ BUY ============ -->
+  <section id="view-buy" class="hide">
+    <div class="card">
+      <div class="row" style="justify-content:space-between;align-items:flex-start">
+        <div>
+          <h2>🔧 Montagem do carro</h2>
+          <p class="muted">Siga a ordem sorteada: a equipe da vez monta o carro e tem prioridade nas peças Premium. Registre as escolhas de cada líder.</p>
+        </div>
+      </div>
+      <div class="draftline" id="buyDraftLine"></div>
+    </div>
+
+    <div class="card">
+      <div class="teamtabs" id="teamTabs"></div>
+      <div class="row" style="justify-content:space-between;margin-bottom:10px">
+        <div>
+          <strong id="activeTeamName"></strong>
+          <span class="muted" id="makeCounter"></span>
+        </div>
+        <div style="min-width:260px">
+          <div class="row" style="justify-content:space-between">
+            <span class="muted">Orçamento</span>
+            <span id="budgetText"></span>
+          </div>
+          <div class="budgetbar" id="budgetBar"><div></div></div>
+        </div>
+      </div>
+      <div class="parts" id="partsGrid"></div>
+      <div class="row" style="justify-content:flex-end;margin-top:14px">
+        <button class="btn green" id="btnLockTeam">✅ Fechar carro desta equipe</button>
+      </div>
+    </div>
+
+    <div class="row" style="justify-content:space-between">
+      <button class="btn ghost" id="btnBackSetup">← Voltar</button>
+      <button class="btn" id="btnToRace">Largar corrida →</button>
+    </div>
+  </section>
+
+  <!-- ============ RACE ============ -->
+  <section id="view-race" class="hide">
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <h2>🏎️ Volta <span id="lapNum">0</span>/<span id="lapTotal">5</span></h2>
+        <div class="row">
+          <button class="btn green" id="btnStartRace">🚦 Iniciar corrida</button>
+          <button class="btn green hide" id="btnToResults">Ver pódio 🏆</button>
+        </div>
+      </div>
+      <p class="muted" style="margin-top:6px" id="raceHint">Aperte "Iniciar corrida": os carros dão a volta e, ao fim de cada volta, a carta do evento aparece na tela.</p>
+    </div>
+    <div class="track card">
+      <div id="circuitHost"></div>
+      <div class="leaderboard" id="leaderboard"></div>
+    </div>
+    <div class="row" style="justify-content:flex-start;margin-top:16px">
+      <button class="btn ghost" id="btnBackBuy">← Voltar</button>
+    </div>
+  </section>
+
+  <!-- ============ RESULTS ============ -->
+  <section id="view-results" class="hide">
+    <div class="card">
+      <h2 style="text-align:center">🏆 Pódio do EACH Grand Prix</h2>
+      <div class="podium" id="podium"></div>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:10px">Classificação final</h3>
+      <table id="resultsTable">
+        <thead>
+          <tr>
+            <th>#</th><th>Equipe</th><th>Chegada</th><th>Pts posição</th>
+            <th>Bônus orçamento</th><th>Saldo</th><th>Total</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <p class="note" style="margin-top:12px">
+        🏁 <strong>Pontos de posição:</strong> a ordem de chegada da corrida (em metros percorridos) vira pontos estilo F1: 1º = 25, 2º = 18, 3º = 15, 4º = 12, 5º = 10, 6º = 8, 7º = 6, 8º = 4, 9º = 2.<br>
+        💰 <strong>Bônus de orçamento:</strong> +1 ponto a cada 2 moedas que sobraram (máx. +15), só para quem chegou entre os 5 primeiros. A economia só conta se o carro for competitivo, e quem chega logo atrás do vencedor e economizou bem pode virar o título.
+      </p>
+    </div>
+    <div class="row" style="justify-content:space-between">
+      <button class="btn ghost" id="btnBackRace">← Ver corrida</button>
+      <button class="btn" id="btnNewGame">🔁 Novo jogo</button>
+    </div>
+  </section>
+
+  <div class="footer">EACH Grand Prix · dinâmica de Gestão das Aquisições em TI · GPTI / USP</div>
+</div>
+
+
+<script src="js/config.js"></script>
+<script src="js/core.js"></script>
+<script src="js/setup.js"></script>
+<script src="js/buy.js"></script>
+<script src="js/race.js"></script>
+<script src="js/results.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
