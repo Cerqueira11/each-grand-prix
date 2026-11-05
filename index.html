@@ -62,6 +62,10 @@
           <input type="number" id="stockInput" value="0" min="0">
           <span class="note">0 = automático (metade das equipes, arredondando p/ cima)</span>
         </div>
+        <div style="min-width:200px" class="online-only">
+          <label>Tempo de montagem (minutos)</label>
+          <input type="number" id="buyMinutesInput" value="3" min="0.5" max="15" step="0.5">
+        </div>
       </div>
       <div id="teamList" class="offline-only"></div>
       <div class="row offline-only" style="margin-top:12px">
@@ -88,8 +92,16 @@
   <!-- ============ BUY ============ -->
   <section id="view-buy" class="hide">
     <div class="card online-only" id="onlineBuy">
-      <h2>🔧 Montagem pelo celular</h2>
-      <p class="muted" style="margin:6px 0 12px">Cada líder monta o carro e dá os lances pelas peças Premium no celular. O telão só mostra quem já enviou. Os lances continuam secretos até o leilão.</p>
+      <div class="row" style="justify-content:space-between;align-items:flex-start">
+        <div style="flex:1;min-width:280px">
+          <h2>🔧 Montagem pelo celular</h2>
+          <p class="muted" style="margin:6px 0 12px">Cada líder monta o carro e dá os lances pelas peças Premium no celular. O telão só mostra quem já enviou. Os lances continuam secretos até o leilão. Quando o tempo acaba, o carro de quem não enviou vai do jeito que estiver, e peça sem escolha vai para a oficina.</p>
+        </div>
+        <div style="text-align:right">
+          <div class="timerbig" id="buyTimer">--:--</div>
+          <button class="btn sm ghost" id="btnAddMinute">+1 min</button>
+        </div>
+      </div>
       <div class="buystatus" id="buyStatus"></div>
       <div class="note" id="buyCount" style="margin-top:10px"></div>
     </div>

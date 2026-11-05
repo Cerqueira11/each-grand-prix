@@ -14,6 +14,12 @@ const db = getDatabase(app);
 
 let uid = null;
 let teamsSnap = {}, carsSnap = {};
+// hora do servidor, igual para telão e celulares (o relógio de cada aparelho pode estar adiantado)
+let serverOffset = 0;
+onValue(ref(db, ".info/serverTimeOffset"), (s) => { serverOffset = s.val() || 0; });
+const now = () => Date.now() + serverOffset;
+const AUTO_GRACE_MS = 4000; // espera os celulares enviarem sozinhos antes de o telão fechar o resto
+let sweptFor = null;
 let unsub = [];
 const roomRef = (path) => ref(db, `rooms/${state.room}${path ? "/" + path : ""}`);
 const presetId = (i) => `t${i}`;
@@ -61,7 +67,7 @@ function syncTeams() {
     const p = TEAM_PRESETS[presetIndex(id)];
     const car = carsSnap[id] || {};
     return { id, name: p.name, emoji: p.emoji, color: p.color, color2: p.color2 || null, color3: p.color3 || null,
-             car: p.car, choices: car.choices || {}, bids: car.bids || {}, locked: !!car.locked };
+             car: p.car, choices: car.choices || {}, bids: car.bids || {}, locked: !!car.locked, auto: !!car.auto };
   });
   state.draftOrder = state.teams.map((t) => t.id);
   saveState();
@@ -93,7 +99,8 @@ function renderBuyStatus() {
     <div class="bstat${t.locked ? " done" : ""}">
       <span class="swatch" style="background:${teamFill(t)}"></span>
       <span class="sname">${t.name}</span>
-      <span class="sstate">${t.locked ? "carro enviado ✅" : "montando..."}</span>
+      <span class="sstate">${t.locked ? (t.auto ? "enviado no fim do tempo ⏱" : "carro enviado ✅")
+                                      : `montando (${Object.keys(t.choices).length}/5)`}</span>
       ${t.locked ? `<button class="btn sm ghost" data-reopen="${t.id}">Reabrir</button>` : ""}
       <button class="btn sm ghost" data-free="${t.id}">Liberar</button>
     </div>`).join("") || `<div class="muted">Nenhuma equipe entrou ainda.</div>`;
@@ -119,9 +126,44 @@ $("#btnToBuy").onclick = async () => {
   state.laps = +$("#lapsInput").value || 5;
   state.premiumStock = +$("#stockInput").value || 0;
   state.stock = premiumStockValue();
+  const mins = Math.min(15, Math.max(0.5, +$("#buyMinutesInput").value || 3));
+  state.buyEndsAt = Math.round(now() + mins * 60000);
+  sweptFor = null;
   saveState();
-  await update(roomRef(), { phase: "buy", settings: { budget: state.budget, laps: state.laps, stock: state.stock, premCap: PREM_CAP } });
+  await update(roomRef(), { phase: "buy", settings: { budget: state.budget, laps: state.laps, stock: state.stock,
+    premCap: PREM_CAP, buyEndsAt: state.buyEndsAt } });
   setPhase("buy");
+};
+
+// ---------- cronômetro da montagem ----------
+function fmt(ms) { const s = Math.max(0, Math.ceil(ms / 1000)); return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`; }
+setInterval(() => {
+  if (state.phase !== "buy" || !state.buyEndsAt) return;
+  const left = state.buyEndsAt - now();
+  const el = $("#buyTimer");
+  el.textContent = left > 0 ? fmt(left) : "Tempo!";
+  el.classList.toggle("warn", left <= 30000);
+  if (left <= -AUTO_GRACE_MS && sweptFor !== state.buyEndsAt) { sweptFor = state.buyEndsAt; closeLateCars(); }
+}, 500);
+
+// fecha os carros de quem não enviou (celular fechado ou sem internet) com o rascunho que estava no banco
+async function closeLateCars() {
+  const late = state.teams.filter((t) => !t.locked);
+  for (const t of late) {
+    const car = carsSnap[t.id] || {};
+    const f = autoCompleteCar(car.choices, car.bids, state.budget);
+    try { await set(roomRef(`cars/${t.id}`), { choices: f.choices, bids: f.bids, locked: true, auto: true }); }
+    catch (e) { toast(`Não consegui fechar o carro da ${t.name}: ${e.message}`, "error"); }
+  }
+  if (late.length) toast(`Tempo esgotado. ${late.length} carro(s) foram fechados do jeito que estavam.`, "warn", 6000);
+}
+
+$("#btnAddMinute").onclick = async () => {
+  if (state.phase !== "buy") return;
+  state.buyEndsAt = Math.round(Math.max(now(), state.buyEndsAt || 0) + 60000);
+  sweptFor = null; saveState();
+  await update(roomRef("settings"), { buyEndsAt: state.buyEndsAt });
+  toast("Mais 1 minuto para a montagem.", "ok");
 };
 
 $("#btnToRace").onclick = async () => {

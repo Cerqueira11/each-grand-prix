@@ -50,6 +50,7 @@ const hasRoom = /^[A-Z2-9]{4}$/.test(room);
 
 // ---------- Firebase (só carrega quando há código de sala) ----------
 let ref, set, remove, onValue, db;
+let serverOffset = 0; // hora do servidor, para o cronômetro bater com o telão
 const R = (p) => ref(db, `rooms/${room}/${p}`);
 
 let uid = null, myId = null;
@@ -75,7 +76,12 @@ function findMe() {
   S.car = null;
   if (myId) {
     loadDraft();
-    carUnsub = onValue(R(`cars/${myId}`), (s) => { S.car = s.val(); render(); }, () => {});
+    // o rascunho também fica no banco; só redesenha quando o carro trava ou destrava
+    carUnsub = onValue(R(`cars/${myId}`), (s) => {
+      const was = !!(S.car && S.car.locked);
+      S.car = s.val();
+      if (!!(S.car && S.car.locked) !== was || S.phase !== "buy") render();
+    }, () => {});
   }
 }
 
@@ -133,12 +139,13 @@ function premCount() { return PARTS.filter((p) => draft.choices[p.id] === "P").l
 function makeCount() { return PARTS.filter((p) => draft.choices[p.id] === "M").length; }
 
 function renderBuild() {
-  $("#buildRules").textContent = `Você tem ${budget()} moedas. No máximo ${PREM_CAP} peças Premium, cada uma com ${stock()} unidades no mercado. A oficina dá conta de ${MAKE_CAP} peças sem perder nota.`;
+  $("#buildRules").textContent = `Você tem ${budget()} moedas. No máximo ${PREM_CAP} peças Premium, cada uma com ${stock()} unidades no mercado. A oficina dá conta de ${MAKE_CAP} peças sem perder nota. Quando o tempo acabar, o carro vai do jeito que estiver, e peça sem escolha vai para a oficina.`;
   $("#auctionHelp").innerHTML = `Para cada peça Premium você dá um lance secreto em moedas, que pode ser 0. Cada peça tem ${stock()} unidades.
     <br>1. Se até ${stock()} equipes pedirem a peça, todas levam e ninguém paga o lance. As moedas ficam no seu saldo.
     <br>2. Se mais equipes pedirem, levam os ${stock()} maiores lances, e cada uma paga o próprio lance.
     <br>3. Empate no limite do estoque vai para sorteio.
     <br>4. Quem não leva fica com a peça econômica e não paga o lance.`;
+  if (!S.car) pushDraft(); // rascunho salvo só no aparelho (ex.: página recarregada) sobe para o banco
   const made = makeCount();
   $("#partList").innerHTML = PARTS.map((p) => {
     const sel = draft.choices[p.id];
@@ -167,14 +174,14 @@ function renderBuild() {
     }
     draft.choices[part] = o;
     if (o !== "P") delete draft.bids[part];
-    saveDraft(); renderBuild();
+    saveDraft(); pushDraft(); renderBuild();
   }));
   $$("[data-bid]").forEach((b) => (b.onclick = () => {
     const part = b.dataset.bid, d = +b.dataset.d;
     const next = Math.max(0, (draft.bids[part] || 0) + d);
     if (d > 0 && carCost(draft.choices, { ...draft.bids, [part]: next }) > budget()) { toast("Não sobra moeda para aumentar o lance."); return; }
     draft.bids[part] = next;
-    saveDraft(); renderBuild();
+    saveDraft(); pushDraft(); renderBuild();
   }));
 
   const left = budget() - carCost(draft.choices, draft.bids);
@@ -210,7 +217,49 @@ function carSummary(choices, bids) {
     return `<div class="pline neutral"><span>${p.icon} ${p.name}: <strong>${OPT[c] ? OPT[c].name : "?"}</strong>${b}</span></div>`;
   }).join("");
 }
+// rascunho no banco: se o celular fechar, o telão ainda fecha o carro com o que estava escolhido
+let pushTimer = null;
+function draftPayload() {
+  const bids = {};
+  PARTS.forEach((p) => { if (draft.choices[p.id] === "P") bids[p.id] = draft.bids[p.id] || 0; });
+  return { choices: { ...draft.choices }, bids, locked: false };
+}
+function pushDraft() {
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(() => {
+    if (S.phase !== "buy" || !myId || (S.car && S.car.locked) || !Object.keys(draft.choices).length) return;
+    set(R(`cars/${myId}`), draftPayload()).catch(() => {}); // recusado se o carro já travou
+  }, 400);
+}
+
+// cronômetro e envio automático quando o tempo acaba
+const autoKey = () => `egp_auto_${room}_${myId}`;
+function fmt(ms) { const s = Math.max(0, Math.ceil(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; }
+setInterval(() => {
+  const ends = S.settings && S.settings.buyEndsAt;
+  const el = $("#pTimer");
+  if (S.phase !== "buy" || !ends) { if (el) el.textContent = ""; return; }
+  const left = ends - (Date.now() + serverOffset);
+  el.textContent = left > 0 ? `⏱ ${fmt(left)}` : "⏱ Tempo!";
+  el.classList.toggle("warn", left <= 30000);
+  if (left > 0 || !myId || (S.car && S.car.locked)) return;
+  if (localStorage.getItem(autoKey()) === String(ends)) return; // já enviou sozinho neste prazo
+  try { localStorage.setItem(autoKey(), String(ends)); } catch (e) {}
+  autoSend();
+}, 500);
+async function autoSend() {
+  const f = autoCompleteCar(draft.choices, draft.bids, budget());
+  try {
+    await set(R(`cars/${myId}`), { choices: f.choices, bids: f.bids, locked: true, auto: true });
+    toast("O tempo acabou. Seu carro foi enviado do jeito que estava.", "warn", 6000);
+  } catch (e) { /* o telão já fechou o carro */ }
+}
+
 function renderSent() {
+  if (S.car.auto) {
+    return wait("⏱", "Tempo esgotado", "O carro foi enviado do jeito que estava. Peça sem escolha foi para a oficina. Espere o leilão no telão.",
+      `<div style="text-align:left;margin-top:12px">${carSummary(S.car.choices || {}, S.car.bids || {})}</div>`);
+  }
   wait("📨", "Carro enviado", "Espere o organizador fazer o leilão e largar a corrida. Fique de olho no telão.",
     `<div style="text-align:left;margin-top:12px">${carSummary(S.car.choices || {}, S.car.bids || {})}</div>`);
 }
@@ -299,6 +348,7 @@ async function start() {
     const app = initializeApp(FIREBASE_CONFIG);
     const auth = getAuth(app);
     db = dbm.getDatabase(app);
+    onValue(ref(db, ".info/serverTimeOffset"), (s) => { serverOffset = s.val() || 0; });
     onAuthStateChanged(auth, (user) => {
       if (!user || uid) return;
       uid = user.uid;

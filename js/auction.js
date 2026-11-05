@@ -23,6 +23,19 @@ function carProblem(choices, bids, budget){
   return "";
 }
 
+// carro de quem não enviou a tempo: peça sem escolha vai para a oficina; se preço + lances passar
+// do orçamento, os lances são zerados; se só o preço já passar, Premium vira econômico, da mais cara para a mais barata.
+function autoCompleteCar(choices, bids, budget){
+  const c={}, b={};
+  PARTS.forEach(p=>{ const v=choices && choices[p.id]; c[p.id]=["P","E","M"].includes(v)?v:"M"; });
+  PARTS.filter(p=>c[p.id]==="P").slice(PREM_CAP).forEach(p=>{ c[p.id]="E"; });
+  PARTS.forEach(p=>{ if(c[p.id]==="P"){ const v=bids && bids[p.id]; b[p.id]=Number.isInteger(v)&&v>0?v:0; } });
+  if(carCost(c,b)>budget) Object.keys(b).forEach(k=>{ b[k]=0; });
+  const byPrice=PARTS.filter(p=>c[p.id]==="P").sort((x,y)=>CFG[y.id].P.cost-CFG[x.id].P.cost);
+  for(const p of byPrice){ if(carCost(c,b)<=budget) break; c[p.id]="E"; delete b[p.id]; }
+  return {choices:c, bids:b};
+}
+
 // entries: [{id, choices, bids}]. Para cada peça:
 // - se os pedidos de Premium cabem no estoque, todos levam e ninguém paga lance;
 // - se não cabem, os maiores lances levam e pagam o lance; empate é sorteado;

@@ -38,6 +38,7 @@
               "$p": { ".validate": "$p.matches(/^(motor|pneus|aero|freios|susp)$/) && newData.isNumber() && newData.val() >= 0 && newData.val() <= 99" }
             },
             "locked": { ".validate": "newData.isBoolean()" },
+            "auto": { ".validate": "newData.isBoolean()" },
             "$other": { ".validate": false }
           }
         },
