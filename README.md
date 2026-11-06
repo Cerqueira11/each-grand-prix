@@ -6,6 +6,8 @@ Cada grupo da turma é uma equipe. A equipe monta o carro escolhendo, peça por 
 
 O regulamento completo está em [REGULAMENTO.md](REGULAMENTO.md).
 
+O jogo foi usado na apresentação e depois saiu do ar. O modo offline continua funcionando para quem baixar o repositório. O modo online precisa de um projeto Firebase próprio, como explicado em "Modo online".
+
 ## Como abrir
 
 O jogo roda no navegador, sem instalar nada e sem internet. Basta abrir o `index.html`.
@@ -33,6 +35,13 @@ No modo online, cada líder monta o carro pelo próprio celular e o telão mostr
 5. O organizador faz o leilão, o telão mostra quem levou cada peça e a corrida começa. Durante a corrida, o celular mostra a posição da equipe e o efeito da carta de cada volta no carro dela. No fim, mostra a colocação e os pontos.
 
 Se um celular travar, o líder pode abrir o link de novo no mesmo aparelho e volta para a mesma equipe. Pelo telão, o organizador pode liberar uma equipe para outro celular entrar ou reabrir um carro já enviado.
+
+Para rodar o modo online com o seu próprio Firebase:
+
+1. Crie um projeto no Firebase, ative o Realtime Database e o login anônimo.
+2. Registre um app web e cole a configuração em `js/firebase-config.js`.
+3. Publique as regras com `firebase deploy --only database`, ajustando o projeto em `.firebaserc`.
+4. Sirva os arquivos por HTTP (o modo online não funciona abrindo o arquivo direto do disco), por exemplo com `python -m http.server`, ou publique num site estático.
 
 O modo online guarda os dados num banco do Firebase (Realtime Database), com login anônimo. As regras de acesso ficam em `database.rules.json`: cada celular só mexe na própria equipe, os lances só ficam visíveis para o telão e para a própria equipe, e só o telão que criou a sala controla a partida.
 

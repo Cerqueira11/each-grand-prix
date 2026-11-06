@@ -1,13 +1,15 @@
-// Configuração pública do projeto Firebase. Pode ficar no site: quem protege os dados
-// são as regras em database.rules.json, não estas chaves.
+// Configuração do projeto Firebase usado pelo modo online.
+// O projeto original foi desativado depois da apresentação. Para usar o modo online,
+// crie um projeto seu (Realtime Database + login anônimo), cole aqui a configuração
+// do app web e publique as regras de database.rules.json.
 export const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyDiS4JQbpyQtGiGEkdp5EEaKVp_hB1j5Vc",
-  authDomain: "each-grand-prix.firebaseapp.com",
-  databaseURL: "https://each-grand-prix-default-rtdb.firebaseio.com",
-  projectId: "each-grand-prix",
-  storageBucket: "each-grand-prix.firebasestorage.app",
-  messagingSenderId: "817032400953",
-  appId: "1:817032400953:web:97586f8a8b051fda353de8",
+  apiKey: "SUA_API_KEY",
+  authDomain: "SEU_PROJETO.firebaseapp.com",
+  databaseURL: "https://SEU_PROJETO-default-rtdb.firebaseio.com",
+  projectId: "SEU_PROJETO",
+  storageBucket: "SEU_PROJETO.firebasestorage.app",
+  messagingSenderId: "000000000000",
+  appId: "1:000000000000:web:0000000000000000",
 };
 
 const V = "13.2.0";
