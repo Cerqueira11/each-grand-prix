@@ -15,7 +15,7 @@ Rodar: python sim_leilao.py
 import itertools, random, statistics
 import sim
 
-sim.__dict__.update(sim.VARIANTS["v10s"])
+sim.__dict__.update(sim.VARIANTS["v11s"])
 N_TEAMS = 9
 STOCK = -(-N_TEAMS // 2)          # 5 unidades por peça premium com 9 equipes
 BIDS = (0, 2, 4, 6, 8, 10)

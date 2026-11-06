@@ -7,7 +7,7 @@ function computeResults(){
   const rows=ranked.map((t,i)=>{
     const posPts=POINTS[i]||1;
     const money=Math.max(0, run[t.id].money);
-    const inTop = i < BONUS_TOPN;
+    const inTop = i < bonusTopN(ranked.length);
     const budgetBonus = inTop ? Math.max(0, Math.min(BONUS_CAP, Math.floor(money/BONUS_DIV))) : 0;
     return { team:t, finish:i+1, dist:Math.round(run[t.id].total), posPts, budgetBonus, inTop, money, total:posPts+budgetBonus };
   });
@@ -38,7 +38,7 @@ function renderResults(){
       <td><span class="swatch" style="display:inline-block;background:${teamFill(r.team)};width:12px;height:12px;vertical-align:middle;margin-right:6px"></span>${r.team.emoji} ${r.team.name}</td>
       <td>${r.finish}º <span class="note">(${r.dist} m)</span></td>
       <td>${r.posPts}</td>
-      <td>${r.budgetBonus?('+'+r.budgetBonus+' 💰'):(!r.inTop && r.money>=BONUS_DIV?'<span class="note">fora do top 5</span>':'—')}</td>
+      <td>${r.budgetBonus?('+'+r.budgetBonus+' 💰'):(!r.inTop && r.money>=BONUS_DIV?`<span class="note">fora do top ${bonusTopN(res.length)}</span>`:'—')}</td>
       <td>💰${r.money}</td>
       <td><strong>${r.total}</strong></td>`;
     tb.appendChild(tr);

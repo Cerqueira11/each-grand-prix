@@ -68,7 +68,7 @@ As cartas mexem em duas coisas. Os metros decidem a ordem de chegada. As moedas 
 
 A ordem de chegada vale pontos: 25, 18, 15, 12, 10, 8, 6, 4 e 2, do primeiro ao nono.
 
-Quem chega entre os 5 primeiros ainda ganha 1 ponto a cada 2 moedas que sobraram, até 15 pontos. Do sexto lugar para trás não tem bônus, mesmo com moedas sobrando.
+Quem chega na metade de cima da corrida ainda ganha 1 ponto a cada 2 moedas que sobraram, até 15 pontos. Com 9 equipes são os 5 primeiros, com 4 equipes os 2 primeiros. Quem fica na metade de baixo não tem bônus, mesmo com moedas sobrando.
 
 Ganha quem somar mais pontos. Na maioria das vezes quem vence a corrida leva o título. Às vezes quem chega em segundo e guardou bem mais dinheiro passa na frente.
 

@@ -113,8 +113,9 @@ def race(strats, rng, extra=None, scarcity=None):
             c["total"] += sum(nt.values()) + luck
     order = sorted(range(n), key=lambda i: -cars[i]["total"] + rng.random() * 1e-6)
     res = [0] * n
+    topn = -(-n // 2) if BONUS_HALF else BONUS_TOPN
     for pos, i in enumerate(order):
-        bonus = max(0, min(BONUS_CAP, cars[i]["money"] // BONUS_DIV)) if pos < BONUS_TOPN else 0
+        bonus = max(0, min(BONUS_CAP, cars[i]["money"] // BONUS_DIV)) if pos < topn else 0
         res[i] = (POINTS[pos] + bonus, pos == 0, POINTS[pos], bonus)
     return res
 
@@ -206,8 +207,11 @@ VARIANTS["v6s"] = dict(VARIANTS["v4s"], CFG={
 VARIANTS["v8s"] = dict(VARIANTS["v4s"], BUDGET=55, PREM_CAP=2)
 # v9s: v8s + bônus de orçamento mais forte (+1 a cada 2 moedas, máx +15)
 VARIANTS["v9s"] = dict(VARIANTS["v8s"], BONUS_DIV=2, BONUS_CAP=15)
-# v10s (vigente): v9s + bônus de orçamento só para quem chega no top 5
+# v10s: v9s + bônus de orçamento só para quem chega no top 5
 VARIANTS["v10s"] = dict(VARIANTS["v9s"], BONUS_TOPN=5)
+# v11s (vigente): bônus só para a metade de cima da chegada (9 equipes = top 5, igual à v10s)
+VARIANTS["v11s"] = dict(VARIANTS["v10s"], BONUS_HALF=True)
+BONUS_HALF = False
 PREM_CAP = 5
 
 if __name__ == "__main__":

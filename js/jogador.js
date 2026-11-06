@@ -320,7 +320,8 @@ function renderResults() {
   const medal = ["🥇", "🥈", "🥉"][mine.place - 1] || "🏁";
   $("#resIcon").textContent = medal;
   $("#resTitle").textContent = `${presetOf(myId).name} terminou em ${mine.place}º`;
-  const bonus = mine.budgetBonus ? `+${mine.budgetBonus}` : (mine.inTop ? "0" : "fora do top 5");
+  const topN = Math.ceil(rows.length / 2);
+  const bonus = mine.budgetBonus ? `+${mine.budgetBonus}` : (mine.inTop ? "0" : `0 (só o top ${topN} ganha)`);
   $("#resBreak").innerHTML = `
     <div class="breakline"><span>Chegada na corrida</span><span>${mine.finish}º (${mine.dist} m)</span></div>
     <div class="breakline"><span>Pontos da posição</span><span>${mine.posPts}</span></div>

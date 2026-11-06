@@ -27,7 +27,8 @@ const DICE = 2;              // nº de d6 de sorte por volta
 const POINTS = [25,18,15,12,10,8,6,4,2];
 const BONUS_DIV = 2;         // +1 ponto a cada 2 moedas de saldo (ver sim.py v9s)
 const BONUS_CAP = 15;
-const BONUS_TOPN = 5;        // só quem chega entre os 5 primeiros recebe o bônus (ver sim.py v10s)
+// só a metade de cima da chegada recebe o bônus: 9 equipes = top 5, 4 = top 2, 2 = só o 1º (ver sim.py v11s)
+function bonusTopN(nTeams){ return Math.ceil(nTeams/2); }
 
 // Baralho de 10 cartas; sai 1 por volta (5 voltas => 5 cartas).
 // Cada carta tem title/desc (linguagem natural) e apply(car, ctx) que ajusta a nota da volta,
