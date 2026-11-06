@@ -178,3 +178,9 @@ a.btn{text-decoration:none;display:inline-block}
 .auc{padding:8px 0;border-bottom:1px solid var(--line)}
 .auc:last-child{border-bottom:none}
 .auctitle{font-weight:800;margin-bottom:4px}
+/* lista da montagem no telão: nome e botões em cima, situação embaixo */
+.buystatus{grid-template-columns:repeat(auto-fill,minmax(330px,1fr))}
+.bstat{flex-wrap:wrap;row-gap:6px}
+.bstat .sname{flex:1 1 0;min-width:0}
+.bstat .btn{flex:none}
+.bstat .sstate{order:3;flex-basis:100%;margin-left:24px}
