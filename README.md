@@ -6,7 +6,7 @@ Cada grupo da turma é uma equipe. A equipe monta o carro escolhendo, peça por 
 
 O regulamento completo está em [REGULAMENTO.md](REGULAMENTO.md).
 
-O jogo foi usado na apresentação e depois saiu do ar. O modo offline continua funcionando para quem baixar o repositório. O modo online precisa de um projeto Firebase próprio, como explicado em "Modo online".
+Dá para jogar a versão offline em https://cerqueira11.github.io/each-grand-prix/. O modo online foi usado na apresentação e depois desligado. Para religar, é preciso um projeto Firebase próprio, como explicado em "Modo online", e trocar `ONLINE_ENABLED` para `true` em `js/core.js`.
 
 ## Como abrir
 

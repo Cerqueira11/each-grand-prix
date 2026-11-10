@@ -2,7 +2,10 @@
 
 // ===================== ESTADO =====================
 // "?online" na URL liga o modo telão com celulares. O jogo salvo fica separado do modo offline.
-const ONLINE = new URLSearchParams(location.search).has("online");
+// O modo online foi desligado depois da apresentação (sem projeto Firebase ativo).
+// Para religar, troque ONLINE_ENABLED para true e configure js/firebase-config.js.
+const ONLINE_ENABLED = false;
+const ONLINE = ONLINE_ENABLED && new URLSearchParams(location.search).has("online");
 const STORAGE_KEY = ONLINE ? "agp_state_online" : "agp_state";
 if(ONLINE) document.body.classList.add("online");
 let state = loadState() || freshState();
